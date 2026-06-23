@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+* {
+  font-family: "Edu SA Hand", cursive;
+  scrollbar-width: thin;
+  scrollbar-color: #aebca7 #f3eee8;
+}
+
+button, input {
+  outline: none;
+}
+
+button, link {
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(174, 188, 167, .7);
+  border-radius: 999px;
+
+  border: 2px solid #f3eee8;
+
+  transition: all .3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(149, 166, 143, 1);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+.toast-progress {
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  height: 4px;
+  width: 100%;
+
+  transform-origin: left;
+
+  animation: toast-progress 5s linear forwards;
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
