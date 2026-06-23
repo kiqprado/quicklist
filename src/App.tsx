@@ -1,8 +1,15 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useBreakpoint } from "./hook/use-media-query"
+
+import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
+import { useGSAP } from "@gsap/react";
+
 
 import { ToastMessage } from "./components/toast"
 import { Trash2 } from "lucide-react"
+
+gsap.registerPlugin(SplitText);
 
 export default function App() {
   const [ item, setItem ] = useState('')
@@ -12,6 +19,11 @@ export default function App() {
 
   const [ toastMessage, setToastMessage ] = useState('')
   const [ messageType, setMessageType ] = useState<'add' | 'del'>('add')
+
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const emptyListRef = useRef<HTMLSpanElement>(null);
 
   function HandleAddNewItem(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,14 +60,78 @@ export default function App() {
     )
   }
 
-   // BREAKPOINTS INDIVIDUALS
-    const isMobileXS = useBreakpoint('mobileXS')
-    const isMobileSM = useBreakpoint('mobileSM')
-    const isMobileMD = useBreakpoint('mobileMD')
-    const isMobileLG = useBreakpoint('mobileLG')
-    const isMobileXL = useBreakpoint('mobileXL')
+  useGSAP(() => {
+    const tl = gsap.timeline();
+
+    gsap.set(
+      [
+        inputRef.current,
+        buttonRef.current,
+        emptyListRef.current
+      ],
+      {
+        autoAlpha: 0,
+        scale: 0.96
+      }
+    );
+
+    const splitTitle = new SplitText(titleRef.current,{
+      type:"chars"
+    });
+
+    tl.from(splitTitle.chars,{
+      opacity:0,
+      duration:0.1,
+      stagger:0.1,
+      ease:"power2.out"
+    })
+
+    .to(inputRef.current,{
+      autoAlpha:1,
+      scale:1,
+      duration:0.5,
+      ease:"power3.out"
+    })
+
+    .to(buttonRef.current,{
+      autoAlpha:1,
+      scale:1,
+      duration:0.5,
+      ease:"power3.out"
+    }, "-=0.35")
+
+    .add(()=>{
+      if(emptyListRef.current){
+
+        const splitEmpty = new SplitText(emptyListRef.current,{
+          type:"chars"
+        });
+
+
+        gsap.set(emptyListRef.current,{
+          autoAlpha:1
+        });
+
+
+        gsap.from(splitEmpty.chars,{
+          autoAlpha:0,
+          duration:0.05,
+          stagger:0.05,
+          ease:"power2.out"
+        });
+
+      }
+    },"+=0.4");
+  },[]);
+
+  // BREAKPOINTS INDIVIDUALS
+  const isMobileXS = useBreakpoint('mobileXS')
+  const isMobileSM = useBreakpoint('mobileSM')
+  const isMobileMD = useBreakpoint('mobileMD')
+  const isMobileLG = useBreakpoint('mobileLG')
+  const isMobileXL = useBreakpoint('mobileXL')
   
-    /*const isTabletSM = useBreakpoint('tabletSM')
+  /*const isTabletSM = useBreakpoint('tabletSM')
     const isTabletMD = useBreakpoint('tabletMD')
   
     const isDesktopSM = useBreakpoint('desktopSM')
@@ -64,16 +140,16 @@ export default function App() {
     const isDesktopXL = useBreakpoint('desktopXL')
     const isDesktop2XL = useBreakpoint('desktop2XL')*/
   
-    // GROUPS DE BREAKPOINTS
+  // GROUPS DE BREAKPOINTS
   
-    const mobileRangeFull =
+   const mobileRangeFull =
       isMobileXS ||
       isMobileSM ||
       isMobileMD ||
       isMobileLG ||
       isMobileXL
   
-    /* const tabletRangeFull =
+  /* const tabletRangeFull =
       isTabletSM ||
       isTabletMD
   
@@ -90,7 +166,9 @@ export default function App() {
       <div 
         className={`m-auto flex flex-col gap-4 items-center 
          ${mobileRangeFull ? 'w-[80%] h-[80%]' : 'w-[40%] h-[80%]'}`}>
-        <h1 className="text-[#222522] tracking-wider text-2xl">
+        <h1 
+          ref={titleRef}
+          className="text-[#222522] tracking-wider text-2xl">
           Minha lista
         </h1>
 
@@ -100,6 +178,7 @@ export default function App() {
           className="flex flex-col gap-2 w-full">
 
           <input 
+            ref={inputRef}
             value={item}
             onChange={(e) => setItem(e.target.value)}
             type="text" 
@@ -116,6 +195,7 @@ export default function App() {
           />
           
           <button 
+            ref={buttonRef}
             type="submit"
             className="px-4 py-2 rounded-xl
               bg-[#B9C9B4] text-white text-lg tracking-wide
@@ -136,7 +216,12 @@ export default function App() {
           flex flex-col gap-4 py-2`}
         >
           {listItem.length === 0 ? (
-            <span className="block  text-center">Sua lista está zerada, adicione items no campo acima!</span>
+            <span 
+              ref={emptyListRef} 
+              className="block  text-center"
+            >
+              Sua lista está zerada, adicione items no campo acima!
+            </span>
           ) : (
             listItem.map((item) => (
               <li
