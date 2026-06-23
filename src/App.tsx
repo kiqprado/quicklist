@@ -28,6 +28,12 @@ export default function App() {
   function HandleAddNewItem(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
 
+    if(!item.trim()) {
+      setMessageType('del')
+      setToastMessage('Digite um item válido!')
+      return
+    }
+
     if(listItem.includes(item)) {
       setToastMessage(`${item} já está na lista`)
       setMessageType('del')
@@ -182,7 +188,7 @@ export default function App() {
             value={item}
             onChange={(e) => setItem(e.target.value)}
             type="text" 
-            placeholder="Adicione um novo item"
+            placeholder={`${listItem.length === 0 ? 'Adicione um primeiro item a sua lista' : 'Adicione um novo item'}`}
             className="px-6 py-2 rounded-xl
               border border-[#D7C9BA]
               bg-[#FDFCFB] text-[#8F7D70]
