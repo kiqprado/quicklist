@@ -1,13 +1,14 @@
 import { useState, useRef } from "react"
 import { useBreakpoint } from "./hook/use-media-query"
+import { Normalize } from "./hook/normalize-text";
 
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
-
 import { ToastMessage } from "./components/toast"
-import { Trash2 } from "lucide-react"
+import { Form } from "./components/form";
+import { List } from "./components/list";
 
 gsap.registerPlugin(SplitText);
 
@@ -34,7 +35,7 @@ export default function App() {
       return
     }
 
-    if(listItem.includes(item)) {
+    if(listItem.some(list => Normalize(list) === Normalize(item))) {
       setToastMessage(`${item} já está na lista`)
       setMessageType('del')
       setItem('')
@@ -178,94 +179,24 @@ export default function App() {
           Minha lista
         </h1>
 
-        <form 
-          onSubmit={HandleAddNewItem}
-          action="" 
-          className="flex flex-col gap-2 w-full">
+        <Form
+          HandleAddNewItem={HandleAddNewItem}
+          inputRef={inputRef}
+          item={item}
+          setItem={setItem}
+          listItem={listItem}
+          buttonRef={buttonRef}
+        />
 
-          <input 
-            ref={inputRef}
-            value={item}
-            onChange={(e) => setItem(e.target.value)}
-            type="text" 
-            placeholder={`${listItem.length === 0 ? 'Adicione um primeiro item a sua lista' : 'Adicione um novo item'}`}
-            className="px-6 py-2 rounded-xl
-              border border-[#D7C9BA]
-              bg-[#FDFCFB] text-[#8F7D70]
-              placeholder:text-[#B9A89A]
-              shadow-[0_8px_20px_rgba(0,0,0,0.06)]
-              transition-all duration-300
-              focus:-translate-y-1
-              focus:shadow-[0_12px_28px_rgba(0,0,0,0.08)]
-            " 
-          />
-          
-          <button 
-            ref={buttonRef}
-            type="submit"
-            className="px-4 py-2 rounded-xl
-              bg-[#B9C9B4] text-white text-lg tracking-wide
-              border border-[#AABCA4]
-              shadow-[0_10px_25px_rgba(162,185,158,0.35)]
-              transition-all duration-300
-              hover:-translate-y-0.5
-              hover:shadow-[0_18px_35px_rgba(162,185,158,0.45)]
-              active:scale-[0.98] "
-          >
-            Adicionar item
-          </button>
-        </form>
+        <List
+          mobileRangeFull={mobileRangeFull}
+          listItem={listItem}
+          HandleDelItem={HandleDelItem}
+          emptyListRef={emptyListRef}
+          checkedItems={checkedItems}
+          HandleToggleCheckItem={HandleToggleCheckItem}
+        />
 
-        <ul 
-          className={`mt-12 w-full overflow-y-auto 
-          ${mobileRangeFull ? 'h-[72%]' : 'h-[56%]'}
-          flex flex-col gap-4 py-2`}
-        >
-          {listItem.length === 0 ? (
-            <span 
-              ref={emptyListRef} 
-              className="block  text-center"
-            >
-              Sua lista está zerada, adicione items no campo acima!
-            </span>
-          ) : (
-            listItem.map((item) => (
-              <li
-                key={item}
-                className={`flex items-center gap-4 px-6 py-3 rounded-2xl
-                border border-[#F0E6DB]
-                ${ checkedItems.includes(item) 
-                  ? 'bg-[#B9C9B4]' 
-                  : 'bg-[#FEFEFE] hover:bg-[#F3EFEA]'}
-                shadow-[0_10px_25px_rgba(0,0,0,0.05)]
-                transition-all duration-300
-                hover:shadow-[0_16px_35px_rgba(0,0,0,0.08)]`}
-              >
-                <input 
-                  checked={checkedItems.includes(item)}
-                  onChange={() => HandleToggleCheckItem(item)}
-                  type="checkbox" 
-                  className="h-4 w-4 accent-[#9FB594]" /> 
-                <span 
-                  className={`text-lg capitalize 
-                  ${checkedItems.includes(item) ? 'text-[#FEFEFE]' : 'text-[#4B342F]'}`}
-                >
-                  {item}
-                </span> 
-                <button 
-                  onClick={() => HandleDelItem(item)}
-                  className="ml-auto
-                  text-zinc-500
-                  transition-all duration-300
-                  hover:text-red-400
-                  hover:scale-110"
-                >
-                  <Trash2 size={20}/>
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
       </div>
       {toastMessage && (
         <ToastMessage
